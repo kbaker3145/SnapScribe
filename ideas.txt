@@ -1,0 +1,53 @@
+
+- need to find appropriate API
+- add a text box
+
+BIG TO DOS
+
+upload button: 
+- figure out primary button and make sure it can console log
+- how to get primary button to download a pdf
+
+pic to text button: 
+- figure out how to get that side fo the processing (wordpress) 
+
+API
+- figure out how this one works: https://ocr.space/ocrapi 
+- check out google's? or textract?
+- 
+
+
+aesthetic
+- fix the top bar
+- get the light/dark/auto working 
+- have a reset button?
+
+
+
+DIVISION
+
+index.js
+- client side
+- handles file selection + sends file to server
+- sends the image file to the server using a POST request
+- receives extracted text from server and display in text box
+
+server.js
+- manages file uploads with multer
+- sends uploaded file to OCR API
+- responds with extracted text displayed to user
+
+
+
+
+HOW JESUS DID it
+
+- inputPDF gets a change like an upload and its processed with uploadPDF
+- submit button gets clicked
+- convertTextToMp3 function to convert whatever text was in resultText
+    - also has the splitting text into cunks and then converting to base64
+    - calls downloadMP3
+- downloadMP3 function does smth I don't get with filenaming and maybe adding it?
+
+
+

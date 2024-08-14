@@ -1,0 +1,19 @@
+@media (min-width: 992px) {
+    .rounded-lg-3 { border-radius: .3rem; }
+  }
+
+
+textarea {
+    resize: both;  
+    /* overflow: hidden;  */
+    min-height: 40px; 
+}
+
+
+.mainiconLight {
+  filter: invert(31%) sepia(97%) saturate(2816%) hue-rotate(208deg) brightness(100%) contrast(101%);
+}
+
+.about-icons {
+  filter: invert(31%) sepia(97%) saturate(2816%) hue-rotate(208deg) brightness(100%) contrast(101%);
+}
