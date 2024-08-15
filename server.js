@@ -12,9 +12,14 @@ import FormData from 'form-data';
 const app = express();
 const port = 3000;
 
-app.use(express.static("public")); // express knows where header files are found -- relative file paths
+// app.use(express.static("public")); // express knows where header files are found -- relative file paths
+
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+app.use(express.static(path.join(__dirname, '/')));
+
 
 // api data 
 const API_URL = "https://api.ocr.space/parse/image";
