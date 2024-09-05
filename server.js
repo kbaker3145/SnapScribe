@@ -44,6 +44,8 @@ app.post('/get-text', upload.single('file'), async (req, res) => {
 
     console.log('File received:', req.file);  
 
+    const mimeType = req.body.mimeType;  // ADDED Access the MIME type sent from the client
+
     // if there was no file uploaded
     if (!req.file) {
         return res.status(400).send({ error: 'No file uploaded' });
@@ -62,7 +64,9 @@ app.post('/get-text', upload.single('file'), async (req, res) => {
         // fs.writeFileSync(resultFilePath, base64File);
 
         // send to API
-        const ocrResult = await sendToOCR(base64File);
+        // const ocrResult = await sendToOCR(base64File);
+
+        const ocrResult = await sendToOCR(base64File, mimeType);
 
         // send text back to the client (index.js)
         res.json({ text: ocrResult });
@@ -78,11 +82,12 @@ app.post('/get-text', upload.single('file'), async (req, res) => {
  * Handles OCR API call and error catching
  * link for OCR API: https://ocr.space/OCRAPI
  */
-async function sendToOCR(base64File) {
+async function sendToOCR(base64File, mimeType) { // TODO put the mimetype here to get the right extension 
 
     // bug fix: ensure that file is sent as "multipart/formdata" to mimic postman trial success
     const formData = new FormData();
-    formData.append('base64Image', `data:application/pdf;base64,${base64File}`);
+    // formData.append('base64Image', `data:application/pdf;base64,${base64File}`); // old one with pdf
+    formData.append('base64Image', `data:${mimeType};base64,${base64File}`);
     formData.append('language', 'eng');
 
     const response = await axios.post(API_URL, formData, {
@@ -104,10 +109,57 @@ async function sendToOCR(base64File) {
 
 
 
+
+// SUMMARIZING TEXT
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// MeaningCloud Summarization API URL and API Key
+const MEANINGCLOUD_API_URL = 'https://api.meaningcloud.com/summarization-1.0';
+const MEANINGCLOUD_API_KEY = '1aafece64575ec01ee34995a66b8c65c';
+
+
+app.post('/summarize-text', async (req, res) => {
+
+    const { txt, sentences } = req.body;  // Extract the text and sentences from the request body
+
+    console.log("TEXT RECIEVED: ", txt);
+    if (!txt) {
+      return res.status(400).json({ error: 'No text provided for summarization' });
+    }
+  
+    // Prepare form data for MeaningCloud API
+    const formData = new URLSearchParams();
+    formData.append('key', MEANINGCLOUD_API_KEY);
+    formData.append('txt', txt);
+    formData.append('sentences', sentences || '5');  // Default to 5 sentences if not provided
+  
+    try {
+      // Send the request to the MeaningCloud Summarization API
+      const response = await fetch(MEANINGCLOUD_API_URL, {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await response.json();
+  
+      if (result.status.code !== "0") {
+        return res.status(500).json({ error: 'Error summarizing text' });
+      }
+  
+      // Return the summary to the client
+      res.json({ text: result.summary });
+  
+    } catch (error) {
+      console.error('Error fetching summary:', error);
+      res.status(500).send({ error: 'Failed to fetch summary' });
+    }
+});
+  
+
 // *** CODE FOR SUMMARIZING THE TEXT!! *** (using hugging face transformers)
-// https://www.freecodecamp.org/news/how-to-build-a-text-summarizer-using-huggingface-transformers/
-
-
+// https://www.freecodecamp.org/news/how-to-build-a-text-summarizer-using-huggingface-transformers
 // 
 
 

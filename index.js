@@ -108,6 +108,64 @@ function checkFile() {
 
 submitButton.addEventListener('click', checkFile);
 
+// text summary option
+textSummaryButton.addEventListener('click', function() {
+  // alert("THE BUTTON HAS BEEN CLICKED");
+
+
+  if (textBox.value == "" || textBox.value == "Please select a file.") {
+    alert("Please upload an image first");
+    return;
+  }
+
+  summarizeText();
+
+
+
+});
+
+/* 
+* Summarize Text
+*/
+function summarizeText() {
+
+  // referenced: https://learn.meaningcloud.com/developer/summarization/1.0/dev-tools
+
+  const formDataSummary = new FormData();
+  formDataSummary.append("key", "1aafece64575ec01ee34995a66b8c65c");
+  formDataSummary.append("txt", textBox.value);
+  formdata.append("sentences", "5");
+
+  // send to the server
+  fetch('/summarize-text', {
+    method: 'POST',
+    body: new URLSearchParams({
+      txt: textBox.value,
+      sentences: '5' // or whatever number you want
+    }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+  .then(response => response.json())  // Parse the JSON response
+  .then(data => {
+      // Display the summarized text in the textBox
+      textBox.value = data.text;
+
+      console.log("Summary: ", data.text);
+
+      // Adjust the textarea height to fit the new text
+      textBox.style.height = 'auto';
+      textBox.style.height = (textBox.scrollHeight) + 'px';
+  })
+  .catch(error => {
+      console.error('Error presenting summary', error);  
+      textBox.value = 'Error presenting summary';
+  });
+}
+
+
+
 
 
 /* 
@@ -118,6 +176,32 @@ function uploadPDF() {
 
   const formData = new FormData();  // holds file data
   formData.append('file', inputPic.files[0]);  // append file to the FormData object
+
+
+  // Determine the MIME type based on the file extension
+  let mimeType;
+  const file = inputPic.files[0];
+  const fileName = file.name;
+  const fileExtension = fileName.split('.').pop().toLowerCase();
+  switch (fileExtension) {
+    case 'png':
+      mimeType = 'image/png';
+      break;
+    case 'jpg':
+    case 'jpeg':
+      mimeType = 'image/jpeg';
+      break;
+    case 'pdf':
+      mimeType = 'application/pdf';
+      break;
+    default:
+      alert('Unsupported file type!');
+      return;
+  }
+
+  formData.append('mimeType', mimeType);  // append the MIME type as a string
+
+
 
   // send the file to the server using fetch API
   fetch('get-text', {
@@ -173,8 +257,15 @@ inputPDF.addEventListener('change', () => {
 //   console.log("SUMMARY OF TEXT: ", text);
 // }
 
-// textSummaryButton.addEventListener('click', alert("THE BUTTON HAS BEEN CLICKED"));
 
-textSummaryButton.addEventListener('click', function() {
-  alert("THE BUTTON HAS BEEN CLICKED");
-});
+
+
+
+// USE THIS API for text summary??
+// https://learn.meaningcloud.com/developer/summarization/1.0/dev-tools
+
+
+  // if (textBox.value == "" || textBox.value == "Please select a file.") {
+  //   alert("Please upload an image first");
+  //   return;
+  // }
